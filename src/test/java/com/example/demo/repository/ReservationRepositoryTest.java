@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import jakarta.persistence.EntityManager;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -69,6 +70,37 @@ class ReservationRepositoryTest {
 
         // then
         assertThat(exists).isEqualTo(expected);
+    }
+
+    @Test
+    void findByUser() {
+        // given
+        var user = userRepository.save(new User("username", "email"));
+        var meetingRoom = meetingRoomRepository.save(new MeetingRoom("Conference Room A", 10, 50));
+        var reservation1 = reservationRepository.save(new Reservation(
+                meetingRoom,
+                user,
+                LocalDateTime.of(2025, 11, 29, 10, 0),
+                LocalDateTime.of(2025, 11, 29, 12, 0),
+                100,
+                ReservationStatus.CONFIRMED,
+                null
+        ));
+        var reservation2 = reservationRepository.save(new Reservation(
+                meetingRoom,
+                user,
+                LocalDateTime.of(2025, 11, 30, 10, 0),
+                LocalDateTime.of(2025, 11, 30, 12, 0),
+                100,
+                ReservationStatus.PAYMENT_PENDING,
+                null
+        ));
+
+        // when
+        var reservations = reservationRepository.findByUser(user);
+
+        // then
+        assertThat(reservations).containsExactlyInAnyOrder(reservation1, reservation2);
     }
 
     private static Stream<Arguments> provideOverlappingTestCases() {

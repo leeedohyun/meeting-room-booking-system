@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -43,5 +44,12 @@ public class ReservationService {
 
         Reservation reservation = Reservation.reserve(meetingRoom, user, startTime, endTime);
         return reservationRepository.save(reservation).getId();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Reservation> getReservations(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> CoreException.warn(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));
+        return reservationRepository.findByUser(user);
     }
 }
