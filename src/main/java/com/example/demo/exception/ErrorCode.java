@@ -13,7 +13,8 @@ public enum ErrorCode {
 
     MEETING_ROOM_NOT_FOUND("회의실을 찾을 수 없습니다."),
     USER_NOT_FOUND("사용자를 찾을 수 없습니다."),
-    RESERVATION_NOT_FOUND("예약을 찾을 수 없습니다.");
+    RESERVATION_NOT_FOUND("예약을 찾을 수 없습니다."),
+    PAYMENT_NOT_FOUND("결제 정보를 찾을 수 없습니다.");
 
     private final String message;
 }
