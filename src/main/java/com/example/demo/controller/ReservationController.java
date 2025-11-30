@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.controller.dto.ReservationCancelRequest;
 import com.example.demo.controller.dto.ReservationRequest;
 import com.example.demo.controller.dto.ReservationResponse;
 import com.example.demo.domain.Reservation;
@@ -70,6 +71,38 @@ public class ReservationController {
                 request.startTime(),
                 request.endTime()
         );
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "예약 취소 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "찾을 수 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ProblemDetail.class),
+                            examples = {
+                                    @ExampleObject(name = "USER_NOT_FOUND", value = "{\"type\":\"about:blank\",\"title\":\"USER_NOT_FOUND\",\"status\":404,\"detail\":\"사용자를 찾을 수 없습니다.\"}"),
+                                    @ExampleObject(name = "RESERVATION_NOT_FOUND", value = "{\"type\":\"about:blank\",\"title\":\"RESERVATION_NOT_FOUND\",\"status\":404,\"detail\":\"예약을 찾을 수 없습니다.\"}")
+                            }
+                    )
+            )
+    })
+    @PostMapping("/reservations/{id}/cancel")
+    public void cancel(
+            @Parameter(
+                    description = "취소할 예약 ID",
+                    required = true,
+                    in = ParameterIn.PATH,
+                    example = "1"
+            )
+            @PathVariable Long id,
+            @RequestBody ReservationCancelRequest request
+    ) {
+        reservationService.cancel(id, request.userId());
     }
 
     @ApiResponses(value = {

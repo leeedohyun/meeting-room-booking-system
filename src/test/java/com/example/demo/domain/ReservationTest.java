@@ -79,4 +79,18 @@ class ReservationTest {
                 .isInstanceOf(CoreException.class)
                 .hasMessageContaining(ErrorCode.INVALID_TIME_UNIT.getMessage());
     }
+
+    @Test
+    void cancel() {
+        // given
+        LocalDateTime startTime = LocalDateTime.of(2025, 12, 1, 9, 0);
+        LocalDateTime endTime = LocalDateTime.of(2025, 12, 1, 10, 0);
+        Reservation reservation = Reservation.reserve(meetingRoom, user, startTime, endTime);
+
+        // when
+        reservation.cancel();
+
+        // then
+        assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.CANCELED);
+    }
 }

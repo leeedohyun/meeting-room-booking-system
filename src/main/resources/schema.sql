@@ -25,7 +25,7 @@ CREATE TABLE reservation
     start_time      DATETIME  NOT NULL,
     end_time        DATETIME  NOT NULL,
     total_amount    INT       NOT NULL,
-    status          enum('PAYMENT_PENDING', 'CONFIRMED') NOT NULL,
+    status          enum('PAYMENT_PENDING', 'CONFIRMED', 'CANCELED') NOT NULL,
     payment_id      BIGINT,
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),

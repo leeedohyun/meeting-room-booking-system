@@ -46,6 +46,15 @@ public class ReservationService {
         return reservationRepository.save(reservation).getId();
     }
 
+    @Transactional
+    public void cancel(Long reservationId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> CoreException.warn(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));
+        Reservation reservation = reservationRepository.findByIdAndUser(reservationId, user)
+                .orElseThrow(() -> CoreException.warn(HttpStatus.NOT_FOUND, ErrorCode.RESERVATION_NOT_FOUND));
+        reservation.cancel();
+    }
+
     @Transactional(readOnly = true)
     public List<Reservation> getReservations(Long userId) {
         User user = userRepository.findById(userId)

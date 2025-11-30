@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.domain.Reservation;
+import com.example.demo.domain.ReservationStatus;
 import com.example.demo.exception.CoreException;
 import com.example.demo.exception.ErrorCode;
 
@@ -120,6 +123,59 @@ class ReservationServiceTest {
         assertThatThrownBy(() -> reservationService.reserve(userId, meetingRoomId, startTime, endTime))
                 .isInstanceOf(CoreException.class)
                 .hasMessageContaining(ErrorCode.INVALID_TIME_UNIT.getMessage());
+    }
+
+    @Test
+    void cancel() {
+        // given
+        var userId = 1L;
+        var meetingRoomId = 1L;
+        var startTime = LocalDateTime.of(2025, 11, 29, 18, 0);
+        var endTime = LocalDateTime.of(2025, 11, 29, 18, 30);
+        var reservationId = reservationService.reserve(userId, meetingRoomId, startTime, endTime);
+
+        // when
+        reservationService.cancel(reservationId, userId);
+
+        // then
+        List<Reservation> reservations = reservationService.getReservations(userId);
+        var reservation = reservations.stream()
+                .filter(r -> r.getId().equals(reservationId))
+                .findFirst()
+                .orElseThrow();
+        assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.CANCELED);
+    }
+
+
+    @Test
+    void cancel_WhenUserNotFound() {
+        // given
+        var meetingRoomId = 1L;
+        var startTime = LocalDateTime.of(2025, 11, 29, 18, 0);
+        var endTime = LocalDateTime.of(2025, 11, 29, 18, 30);
+        var reservationId = reservationService.reserve(1L, meetingRoomId, startTime, endTime);
+        var invalidUserId = 999L;
+
+        // when & then
+        assertThatThrownBy(() -> reservationService.cancel(reservationId, invalidUserId))
+                .isInstanceOf(CoreException.class)
+                .hasMessageContaining(ErrorCode.USER_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    void cancel_WhenReservationNotFound() {
+        // given
+        var userId = 1L;
+        var meetingRoomId = 1L;
+        var startTime = LocalDateTime.of(2025, 11, 29, 18, 0);
+        var endTime = LocalDateTime.of(2025, 11, 29, 18, 30);
+        reservationService.reserve(userId, meetingRoomId, startTime, endTime);
+        var invalidReservationId = 999L;
+
+        // when & then
+        assertThatThrownBy(() -> reservationService.cancel(invalidReservationId, userId))
+                .isInstanceOf(CoreException.class)
+                .hasMessageContaining(ErrorCode.RESERVATION_NOT_FOUND.getMessage());
     }
 
     @Test

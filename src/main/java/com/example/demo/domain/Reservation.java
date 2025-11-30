@@ -96,6 +96,10 @@ public class Reservation extends BaseEntity {
         );
     }
 
+    public void cancel() {
+        this.status = ReservationStatus.CANCELED;
+    }
+
     private static void validateReservationTime(LocalDateTime startTime, LocalDateTime endTime) {
         if (!startTime.isBefore(endTime)) {
             throw CoreException.warn(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_DURATION);
