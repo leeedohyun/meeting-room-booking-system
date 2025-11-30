@@ -54,8 +54,7 @@ class ReservationRepositoryTest {
                 existingStart,
                 existingEnd,
                 100,
-                ReservationStatus.CONFIRMED,
-                null
+                ReservationStatus.CONFIRMED
         ));
 
         entityManager.flush();
@@ -83,8 +82,7 @@ class ReservationRepositoryTest {
                 LocalDateTime.of(2025, 11, 29, 10, 0),
                 LocalDateTime.of(2025, 11, 29, 12, 0),
                 100,
-                ReservationStatus.CONFIRMED,
-                null
+                ReservationStatus.CONFIRMED
         ));
         var reservation2 = reservationRepository.save(new Reservation(
                 meetingRoom,
@@ -92,8 +90,7 @@ class ReservationRepositoryTest {
                 LocalDateTime.of(2025, 11, 30, 10, 0),
                 LocalDateTime.of(2025, 11, 30, 12, 0),
                 100,
-                ReservationStatus.PAYMENT_PENDING,
-                null
+                ReservationStatus.PAYMENT_PENDING
         ));
 
         // when

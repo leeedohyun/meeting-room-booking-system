@@ -25,12 +25,23 @@ public class Payment extends BaseEntity {
     @Column(nullable = false)
     private PaymentStatus status;
 
+    @Column(nullable = false)
     private String externalPaymentId;
 
-    public Payment(PaymentProviderType providerType, int amount, PaymentStatus status, String externalPaymentId) {
+    @Column(nullable = false)
+    private Long reservationId;
+
+    public Payment(
+            PaymentProviderType providerType,
+            int amount,
+            PaymentStatus status,
+            String externalPaymentId,
+            Long reservationId
+    ) {
         this.providerType = providerType;
         this.amount = amount;
         this.status = status;
         this.externalPaymentId = externalPaymentId;
+        this.reservationId = reservationId;
     }
 }

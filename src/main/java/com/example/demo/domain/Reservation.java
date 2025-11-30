@@ -3,7 +3,6 @@ package com.example.demo.domain;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,7 +11,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import org.springframework.http.HttpStatus;
@@ -53,17 +51,13 @@ public class Reservation extends BaseEntity {
     @Column(nullable = false)
     private ReservationStatus status;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "payment_id", unique = true)
-    private Payment payment;
-
     public Reservation(
             MeetingRoom meetingRoom,
             User user,
             LocalDateTime startTime,
             LocalDateTime endTime,
             int totalAmount,
-            ReservationStatus status, Payment payment
+            ReservationStatus status
     ) {
         this.meetingRoom = meetingRoom;
         this.user = user;
@@ -71,7 +65,6 @@ public class Reservation extends BaseEntity {
         this.endTime = endTime;
         this.totalAmount = totalAmount;
         this.status = status;
-        this.payment = payment;
     }
 
     public static Reservation reserve(
@@ -91,8 +84,7 @@ public class Reservation extends BaseEntity {
                 startTime,
                 endTime,
                 totalAmount,
-                ReservationStatus.PAYMENT_PENDING,
-                null
+                ReservationStatus.PAYMENT_PENDING
         );
     }
 

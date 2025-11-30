@@ -17,17 +17,6 @@ CREATE TABLE users
     updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP()
 );
 
-CREATE TABLE payment
-(
-    id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
-    provider_type       ENUM('CARD', 'SIMPLE', 'VIRTUAL_ACCOUNT') NOT NULL,
-    amount              INT          NOT NULL,
-    status              ENUM('PENDING', 'SUCCESS', 'FAILED', 'CANCELLED') NOT NULL,
-    external_payment_id VARCHAR(255) NOT NULL,
-    created_at          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-    updated_at          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP()
-);
-
 CREATE TABLE reservation
 (
     id              BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -37,9 +26,21 @@ CREATE TABLE reservation
     end_time        DATETIME  NOT NULL,
     total_amount    INT       NOT NULL,
     status          enum('PAYMENT_PENDING', 'CONFIRMED', 'CANCELED') NOT NULL,
-    payment_id      BIGINT,
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (meeting_room_id) REFERENCES meeting_room (id)
+);
+
+CREATE TABLE payment
+(
+    id                  BIGINT PRIMARY KEY AUTO_INCREMENT,
+    reservation_id      BIGINT       NOT NULL,
+    provider_type       ENUM('CARD', 'SIMPLE', 'VIRTUAL_ACCOUNT') NOT NULL,
+    amount              INT          NOT NULL,
+    status              ENUM('PENDING', 'SUCCESS', 'FAILED', 'CANCELLED') NOT NULL,
+    external_payment_id VARCHAR(255) NOT NULL,
+    created_at          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+    updated_at          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+    FOREIGN KEY (reservation_id) REFERENCES reservation (id)
 );
