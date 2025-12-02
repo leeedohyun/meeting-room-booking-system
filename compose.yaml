@@ -7,4 +7,32 @@ services:
       - 'MYSQL_ROOT_PASSWORD=verysecret'
       - 'MYSQL_USER=myuser'
     ports:
-      - '3306'
+      - '3306:3306'
+
+  app-core:
+    build:
+      context: ./core
+      dockerfile: Dockerfile
+    container_name: core-api
+    restart: always
+    ports:
+      - '8080:8080'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mydatabase?characterEncoding=UTF-8
+      - SPRING_DATASOURCE_USERNAME=myuser
+      - SPRING_DATASOURCE_PASSWORD=secret
+    depends_on:
+      - mysql
+      - app-mock
+
+  app-mock:
+    build:
+      context: ./payment-mock-server
+      dockerfile: Dockerfile
+    container_name: payment-mock-server
+    restart: always
+    ports:
+      - '8081:8081'
+    environment:
+      - SERVER_PORT=8081
+
