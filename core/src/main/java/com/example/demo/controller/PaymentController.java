@@ -1,13 +1,17 @@
 package com.example.demo.controller;
 
+import java.util.Map;
+
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.domain.PaymentStatus;
 import com.example.demo.service.PaymentService;
+import com.example.demo.service.ReservationService;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -22,10 +26,28 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "결제", description = "결제 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/payments")
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final ReservationService reservationService;
+
+    @PostMapping("/webhooks/payments/{provider}")
+    public void handlePaymentWebhook(
+            @Parameter(
+                    description = "결제 제공자",
+                    required = true,
+                    in = ParameterIn.PATH,
+                    example = "PAYPAL"
+            )
+            @PathVariable String provider,
+            @RequestBody Map<String, Object> webhookData
+    ) {
+        Long reservationId = (Long) webhookData.get("reservationId");
+        String externalPaymentId = (String) webhookData.get("transactionId");
+
+        paymentService.success(provider, reservationId, externalPaymentId);
+        reservationService.confirm(reservationId);
+    }
 
     @ApiResponses(value = {
             @ApiResponse(
@@ -55,7 +77,7 @@ public class PaymentController {
                     }
             )
     })
-    @GetMapping("/{paymentId}/status")
+    @GetMapping("/payments/{paymentId}/status")
     public PaymentStatus getPaymentStatus(
             @Parameter(
                     description = "결제 ID",

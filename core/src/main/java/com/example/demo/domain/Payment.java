@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 public class Payment extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private PaymentProviderType providerType;
 
     @Column(nullable = false)
@@ -23,13 +22,16 @@ public class Payment extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PaymentStatus status;
+    private PaymentStatus status = PaymentStatus.PENDING;
 
-    @Column(nullable = false)
     private String externalPaymentId;
 
     @Column(nullable = false)
     private Long reservationId;
+
+    public Payment(int amount, Long reservationId) {
+        this(null, amount, PaymentStatus.PENDING, null, reservationId);
+    }
 
     public Payment(
             PaymentProviderType providerType,
@@ -43,5 +45,11 @@ public class Payment extends BaseEntity {
         this.status = status;
         this.externalPaymentId = externalPaymentId;
         this.reservationId = reservationId;
+    }
+
+    public void success(PaymentProviderType providerType, String externalPaymentId) {
+        this.providerType = providerType;
+        this.status = PaymentStatus.SUCCESS;
+        this.externalPaymentId = externalPaymentId;
     }
 }
