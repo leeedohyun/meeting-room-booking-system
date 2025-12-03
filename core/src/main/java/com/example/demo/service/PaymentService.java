@@ -11,9 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.domain.Payment;
 import com.example.demo.domain.PaymentProviderType;
 import com.example.demo.domain.PaymentStatus;
+import com.example.demo.domain.Reservation;
+import com.example.demo.domain.ReservationStatus;
 import com.example.demo.exception.CoreException;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.repository.PaymentRepository;
+import com.example.demo.repository.ReservationRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
+    private final ReservationRepository reservationRepository;
     private final List<PaymentProcessor> paymentProcessors;
 
     @Transactional(readOnly = true)
@@ -47,10 +51,18 @@ public class PaymentService {
     }
 
     @Transactional
-    public void success(String provider, Long reservationId, String externalPaymentId) {
+    public void success(String provider, Long reservationId, String externalPaymentId, int amount) {
         PaymentProviderType providerType = PaymentProviderType.fromProviderCode(provider);
+        Reservation reservation = reservationRepository.findByIdAndStatus(reservationId, ReservationStatus.PAYMENT_PENDING)
+                .orElseThrow(() -> CoreException.warn(HttpStatus.NOT_FOUND, ErrorCode.RESERVATION_NOT_FOUND));
         Payment payment = paymentRepository.findByReservationId(reservationId)
                 .orElseThrow(() -> CoreException.warn(HttpStatus.NOT_FOUND, ErrorCode.PAYMENT_NOT_FOUND));
+
+        if (payment.isNotEqualsAmount(amount)) {
+            throw CoreException.warn(HttpStatus.BAD_REQUEST, ErrorCode.PAYMENT_AMOUNT_MISMATCH);
+        }
+
         payment.success(providerType, externalPaymentId);
+        reservation.confirm();
     }
 }

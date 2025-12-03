@@ -30,7 +30,6 @@ import lombok.RequiredArgsConstructor;
 public class PaymentController {
 
     private final PaymentService paymentService;
-    private final ReservationService reservationService;
 
     @PostMapping("/reservations/{id}/payment")
     public void confirm(
@@ -59,9 +58,9 @@ public class PaymentController {
     ) {
         Long reservationId = (Long) webhookData.get("reservationId");
         String externalPaymentId = (String) webhookData.get("transactionId");
+        int amount = (Integer) webhookData.get("amount");
 
-        paymentService.success(provider, reservationId, externalPaymentId);
-        reservationService.confirm(reservationId);
+        paymentService.success(provider, reservationId, externalPaymentId, amount);
     }
 
     @ApiResponses(value = {

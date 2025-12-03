@@ -126,38 +126,6 @@ class ReservationServiceTest {
     }
 
     @Test
-    void confirm() {
-        // given
-        var userId = 1L;
-        var meetingRoomId = 1L;
-        var startTime = LocalDateTime.of(2025, 11, 29, 18, 0);
-        var endTime = LocalDateTime.of(2025, 11, 29, 18, 30);
-        var reservationId = reservationService.reserve(userId, meetingRoomId, startTime, endTime);
-
-        // when
-        reservationService.confirm(reservationId);
-
-        // then
-        List<Reservation> reservations = reservationService.getReservations(userId);
-        var reservation = reservations.stream()
-                .filter(r -> r.getId().equals(reservationId))
-                .findFirst()
-                .orElseThrow();
-        assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.CONFIRMED);
-    }
-
-    @Test
-    void confirm_WhenReservationNotFound() {
-        // given
-        var invalidReservationId = 999L;
-
-        // when & then
-        assertThatThrownBy(() -> reservationService.confirm(invalidReservationId))
-                .isInstanceOf(CoreException.class)
-                .hasMessageContaining(ErrorCode.RESERVATION_NOT_FOUND.getMessage());
-    }
-
-    @Test
     void cancel() {
         // given
         var userId = 1L;

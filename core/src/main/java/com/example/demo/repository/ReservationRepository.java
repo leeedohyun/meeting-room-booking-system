@@ -9,11 +9,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.example.demo.domain.Reservation;
+import com.example.demo.domain.ReservationStatus;
 import com.example.demo.domain.User;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
     Optional<Reservation> findByIdAndUser(Long id, User user);
+
+    Optional<Reservation> findByIdAndStatus(Long id, ReservationStatus status);
 
     List<Reservation> findByUser(User user);
 

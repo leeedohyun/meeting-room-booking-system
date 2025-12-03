@@ -47,13 +47,6 @@ public class ReservationService {
     }
 
     @Transactional
-    public void confirm(Long reservationId) {
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> CoreException.warn(HttpStatus.NOT_FOUND, ErrorCode.RESERVATION_NOT_FOUND));
-        reservation.confirm();
-    }
-
-    @Transactional
     public void cancel(Long reservationId, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> CoreException.warn(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));

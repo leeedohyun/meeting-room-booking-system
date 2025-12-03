@@ -11,6 +11,8 @@ public enum ErrorCode {
     INVALID_TIME_UNIT("시간은 정시 또는 30분 단위여야 합니다."),
     MEETING_ROOM_ALREADY_RESERVED("회의실이 이미 예약되어 있습니다."),
     PAYMENT_PROVIDER_NOT_SUPPORTED("지원하지 않는 결제 수단입니다."),
+    INVALID_PAYMENT_STATUS("유효하지 않은 결제 상태입니다."),
+    PAYMENT_AMOUNT_MISMATCH("결제 금액이 일치하지 않습니다."),
 
     MEETING_ROOM_NOT_FOUND("회의실을 찾을 수 없습니다."),
     USER_NOT_FOUND("사용자를 찾을 수 없습니다."),

@@ -43,7 +43,7 @@ class PaymentServiceTest {
         paymentRepository.save(new Payment(10000, reservationId));
 
         // when
-        paymentService.success("A", reservationId, "external-payment-id-12345");
+        paymentService.success("A", reservationId, "external-payment-id-12345", 10000);
 
         // then
         var payment = paymentRepository.findByReservationId(reservationId).orElseThrow();
@@ -53,14 +53,58 @@ class PaymentServiceTest {
     }
 
     @Test
-    void success_WhenPaymentNotFound() {
+    void success_WhenReservationNotFound() {
         // given
         var reservationId = 9999L;
 
         // when & then
-        assertThatThrownBy(() -> paymentService.success("A", reservationId, "external-payment-id-12345"))
-                .isInstanceOf(CoreException.class)
+        assertThatThrownBy(() -> paymentService.success(
+                "A",
+                reservationId,
+                "external-payment-id-12345",
+                10000
+        )).isInstanceOf(CoreException.class)
+                .hasMessageContaining(ErrorCode.RESERVATION_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    void success_WhenPaymentNotFound() {
+        // given
+        var userId = 1L;
+        var meetingRoomId = 1L;
+        var startTime = LocalDateTime.of(2025, 11, 29, 18, 0);
+        var endTime = LocalDateTime.of(2025, 11, 29, 18, 30);
+        var reservationId = reservationService.reserve(userId, meetingRoomId, startTime, endTime);
+
+        // when & then
+        assertThatThrownBy(() -> paymentService.success(
+                "A",
+                reservationId,
+                "external-payment-id-12345",
+                10000
+        )).isInstanceOf(CoreException.class)
                 .hasMessageContaining(ErrorCode.PAYMENT_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    void success_WhenPaymentAmountMismatch() {
+        // given
+        var userId = 1L;
+        var meetingRoomId = 1L;
+        var startTime = LocalDateTime.of(2025, 11, 29, 18, 0);
+        var endTime = LocalDateTime.of(2025, 11, 29, 18, 30);
+        var reservationId = reservationService.reserve(userId, meetingRoomId, startTime, endTime);
+        paymentRepository.save(new Payment(10000, reservationId));
+
+
+        // when & then
+        assertThatThrownBy(() -> paymentService.success(
+                "A",
+                reservationId,
+                "external-payment-id-12345",
+                5000
+        )).isInstanceOf(CoreException.class)
+                .hasMessageContaining(ErrorCode.PAYMENT_AMOUNT_MISMATCH.getMessage());
     }
 
     @Test

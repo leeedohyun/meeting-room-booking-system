@@ -5,6 +5,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
+import org.springframework.http.HttpStatus;
+
+import com.example.demo.exception.CoreException;
+import com.example.demo.exception.ErrorCode;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,9 +57,16 @@ public class Payment extends BaseEntity {
     }
 
     public void success(PaymentProviderType providerType, String externalPaymentId) {
+        if (status != PaymentStatus.PENDING) {
+            throw CoreException.warn(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_PAYMENT_STATUS);
+        }
         this.providerType = providerType;
         this.status = PaymentStatus.SUCCESS;
         this.externalPaymentId = externalPaymentId;
+    }
+
+    public boolean isNotEqualsAmount(int amount) {
+        return this.amount != amount;
     }
 
     public void updateExternalPaymentId(String externalPaymentId) {
