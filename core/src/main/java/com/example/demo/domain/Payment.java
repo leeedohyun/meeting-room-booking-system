@@ -47,9 +47,17 @@ public class Payment extends BaseEntity {
         this.reservationId = reservationId;
     }
 
+    public static Payment pending(int amount, Long reservationId) {
+        return new Payment(null, amount, PaymentStatus.PENDING, null, reservationId);
+    }
+
     public void success(PaymentProviderType providerType, String externalPaymentId) {
         this.providerType = providerType;
         this.status = PaymentStatus.SUCCESS;
+        this.externalPaymentId = externalPaymentId;
+    }
+
+    public void updateExternalPaymentId(String externalPaymentId) {
         this.externalPaymentId = externalPaymentId;
     }
 }

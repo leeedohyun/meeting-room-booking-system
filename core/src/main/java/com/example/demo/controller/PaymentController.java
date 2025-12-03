@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.controller.dto.PaymentRequest;
 import com.example.demo.domain.PaymentStatus;
 import com.example.demo.service.PaymentService;
 import com.example.demo.service.ReservationService;
@@ -30,6 +31,20 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final ReservationService reservationService;
+
+    @PostMapping("/reservations/{id}/payment")
+    public void confirm(
+            @Parameter(
+                    description = "결제할 예약 ID",
+                    required = true,
+                    in = ParameterIn.PATH,
+                    example = "1"
+            )
+            @PathVariable Long id,
+            @RequestBody PaymentRequest request
+    ) {
+        paymentService.pay(id, request.provider(), request.amount());
+    }
 
     @PostMapping("/webhooks/payments/{provider}")
     public void handlePaymentWebhook(

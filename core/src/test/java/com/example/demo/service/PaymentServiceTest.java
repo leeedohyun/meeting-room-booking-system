@@ -98,4 +98,22 @@ class PaymentServiceTest {
                 .isInstanceOf(CoreException.class)
                 .hasMessageContaining(ErrorCode.PAYMENT_NOT_FOUND.getMessage());
     }
+
+    @Test
+    void pay() {
+        // given
+        var userId = 1L;
+        var meetingRoomId = 1L;
+        var startTime = LocalDateTime.of(2025, 11, 29, 18, 0);
+        var endTime = LocalDateTime.of(2025, 11, 29, 18, 30);
+        var reservationId = reservationService.reserve(userId, meetingRoomId, startTime, endTime);
+        var amount = 10000;
+
+        // when
+        var paymentId = paymentService.pay(reservationId, PaymentProviderType.CARD, amount);
+
+        // then
+        var paymentStatus = paymentService.getPaymentStatus(paymentId);
+        assertThat(paymentStatus).isEqualTo(PaymentStatus.PENDING);
+    }
 }
