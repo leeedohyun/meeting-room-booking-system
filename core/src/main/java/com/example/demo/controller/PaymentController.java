@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.controller.dto.PaymentRequest;
 import com.example.demo.domain.PaymentStatus;
 import com.example.demo.service.PaymentService;
-import com.example.demo.service.ReservationService;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -31,6 +30,44 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "결제 요청 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ProblemDetail.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    name = "PAYMENT_PROVIDER_NOT_SUPPORTED",
+                                                    value = "{\"type\":\"about:blank\",\"title\":\"PAYMENT_PROVIDER_NOT_SUPPORTED\",\"status\":400,\"detail\":\"지원하지 않는 결제 제공자입니다.\"}"
+                                            )
+                                    }
+                            )
+                    }
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "예약을 찾을 수 없음",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ProblemDetail.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    name = "RESERVATION_NOT_FOUND",
+                                                    value = "{\"type\":\"about:blank\",\"title\":\"RESERVATION_NOT_FOUND\",\"status\":404,\"detail\":\"예약을 찾을 수 없습니다.\"}"
+                                            )
+                                    }
+                            )
+                    }
+            )
+    })
     @PostMapping("/reservations/{id}/payment")
     public void confirm(
             @Parameter(
@@ -45,6 +82,48 @@ public class PaymentController {
         paymentService.pay(id, request.provider(), request.amount());
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "결제 웹훅 처리 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ProblemDetail.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    name = "PAYMENT_AMOUNT_MISMATCH",
+                                                    value = "{\"type\":\"about:blank\",\"title\":\"PAYMENT_AMOUNT_MISMATCH\",\"status\":400,\"detail\":\"결제 금액이 일치하지 않습니다.\"}"
+                                            )
+                                    }
+                            )
+                    }
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "예약 또는 결제를 찾을 수 없음",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ProblemDetail.class),
+                                    examples = {
+                                            @ExampleObject(
+                                                    name = "RESERVATION_NOT_FOUND",
+                                                    value = "{\"type\":\"about:blank\",\"title\":\"RESERVATION_NOT_FOUND\",\"status\":404,\"detail\":\"예약을 찾을 수 없습니다.\"}"
+                                            ),
+                                            @ExampleObject(
+                                                    name = "PAYMENT_NOT_FOUND",
+                                                    value = "{\"type\":\"about:blank\",\"title\":\"PAYMENT_NOT_FOUND\",\"status\":404,\"detail\":\"결제를 찾을 수 없습니다.\"}"
+                                            )
+                                    }
+                            )
+                    }
+            )
+    })
     @PostMapping("/webhooks/payments/{provider}")
     public void handlePaymentWebhook(
             @Parameter(
